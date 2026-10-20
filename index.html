@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PixGate</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--brand:#0ea5a4;--brand-d:#0b7f7e;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--soft:#ecfeff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b1118;--card:#131c27;--text:#e8eef5;--muted:#8b9bb0;--line:#243142;--brand:#2dd4d3;--brand-d:#14b8b7;--soft:#0f2a2e;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#0b1118;--card:#131c27;--text:#e8eef5;--muted:#8b9bb0;--line:#243142;--brand:#2dd4d3;--brand-d:#14b8b7;--soft:#0f2a2e;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.brand{font-weight:800;font-size:20px}.brand b{color:var(--brand)}
+.who{font-size:13px;color:var(--muted);text-align:right}
+.banner{background:var(--soft);border:1px solid var(--brand);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:12px}
+.nav{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+.nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:999px;cursor:pointer;font-weight:600;font-size:14px}
+.nav button.on{background:var(--brand);border-color:var(--brand);color:#04201f}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h2{margin:0 0 10px;font-size:17px}.card h3{margin:0 0 8px;font-size:15px}
+.bal{font-size:34px;font-weight:800;letter-spacing:-1px;margin:4px 0}
+.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);outline:none}
+input:focus,select:focus{border-color:var(--brand)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.btn{display:inline-block;border:0;background:var(--brand);color:#04201f;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer;width:100%;margin-top:14px}
+.btn:disabled{opacity:.6}
+.btn.sec{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn.sm{width:auto;padding:7px 12px;margin:0;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}.stat .v{font-size:19px;font-weight:800}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}.item .l{min-width:0}.item .l b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pos{color:var(--ok);font-weight:700}.neg{color:var(--bad);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.warn{color:var(--warn);border-color:var(--warn)}.tag.bad{color:var(--bad);border-color:var(--bad)}
+.preview{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13.5px}
+.preview div{display:flex;justify-content:space-between;padding:2px 0}
+.code{word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font:12px/1.4 ui-monospace,Menlo,monospace;margin:10px 0}
+.qr{display:flex;justify-content:center;background:#fff;border-radius:12px;padding:12px;margin:10px 0}.qr img{width:220px;max-width:100%;height:auto}
+.auth{max-width:420px;margin:6vh auto 0}
+.tabs{display:flex;gap:6px;margin-bottom:6px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px;font-weight:700;border-bottom:2px solid var(--line);cursor:pointer;color:var(--muted)}
+.tabs button.on{border-color:var(--brand);color:var(--text)}
+.err{color:var(--bad);font-size:13px;margin-top:8px;min-height:18px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:99;max-width:90%}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal .box{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600}.chk input{width:auto}
+a{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmtPct=n=>String(n).replace('.',',');
+const fmtFee=f=>fmtPct(f.pct)+'% + '+brl(f.fixed);
+const fmtDate=t=>new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function parseMoney(v){v=String(v||'').replace(/[^\d,.-]/g,'');if(v.includes(','))v=v.replace(/\./g,'').replace(',','.');const n=parseFloat(v);return isFinite(n)?Math.round(n*100):0}
+function parsePct(v){v=String(v||'').trim().replace(',','.');if(v==='')return null;const n=parseFloat(v);return isFinite(n)?n:NaN}
+function parseFixed(v){v=String(v||'').trim();return v===''?null:parseMoney(v)}
+const centsToStr=c=>c==null?'':(c/100).toFixed(2).replace('.',',');
+async function api(p,o={}){
+  const r=await fetch('/api'+p,{method:o.method||'GET',headers:{'Content-Type':'application/json'},body:o.body?JSON.stringify(o.body):undefined,credentials:'same-origin'});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.error||'Erro inesperado');e.status=r.status;throw e}
+  return j;
+}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000)}
+async function act(btn,fn){ // trava o botão enquanto roda
+  if(btn)btn.disabled=true;
+  try{await fn()}catch(e){toast(e.message);if(e.status===401){S.me=null;render()}}finally{if(btn)btn.disabled=false}
+}
+
+const S={me:null,fees:null,min:500,sandbox:true,tx:[],view:'home',auth:'login',admin:null,users:[],settings:null,edit:null,poll:null,seenPaid:new Set()};
+
+async function boot(){
+  try{const j=await api('/me');S.me=j.user;S.fees=j.fees;S.min=j.min_amount;S.sandbox=j.sandbox;await loadTx(true)}catch(e){S.me=null}
+  render();
+}
+async function loadTx(silent){
+  const j=await api('/tx');S.me=j.user;S.tx=j.tx;
+  const m=await api('/me');S.fees=m.fees;
+  if(!silent)return;
+  S.tx.forEach(t=>{if(t.status==='paid')S.seenPaid.add(t.id)});
+}
+function startPoll(){
+  clearInterval(S.poll);
+  S.poll=setInterval(async()=>{
+    if(!S.me||document.hidden)return;
+    const before=new Set(S.tx.filter(t=>t.status==='paid').map(t=>t.id));
+    try{await loadTx();}catch(e){return}
+    const got=S.tx.find(t=>t.status==='paid'&&!before.has(t.id)&&!S.seenPaid.has(t.id));
+    if(got){S.seenPaid.add(got.id);toast('PIX recebido! +'+brl(got.net))}
+    if(['home','receive','history'].includes(S.view)&&!document.activeElement.matches('input,select'))render();
+  },5000);
+}
+
+/* ===== Auth ===== */
+function authView(){
+  const login=S.auth==='login';
+  return `<div class="auth"><div class="brand" style="text-align:center;font-size:28px;margin-bottom:4px">Pix<b>Gate</b></div>
+  <p class="muted" style="text-align:center;margin:0 0 16px">Gateway de pagamentos via PIX</p>
+  <div class="card"><div class="tabs"><button class="${login?'on':''}" onclick="S.auth='login';render()">Entrar</button><button class="${!login?'on':''}" onclick="S.auth='signup';render()">Criar conta</button></div>
+  ${login?`<form onsubmit="doLogin(event)"><label>Usuário ou e-mail</label><input name="id" autocomplete="username" required><label>Senha</label><input name="pw" type="password" autocomplete="current-password" required><div class="err" id="err"></div><button class="btn" style="margin-top:4px">Entrar</button></form>`
+  :`<form onsubmit="doSignup(event)"><label>Nome</label><input name="name" required><label>Usuário</label><input name="username" autocapitalize="none" required><label>E-mail</label><input name="email" type="email" required><label>Senha (mín. 8)</label><input name="pw" type="password" autocomplete="new-password" required><div class="err" id="err"></div><button class="btn" style="margin-top:4px">Criar conta</button></form>`}
+  </div></div>`;
+}
+function doLogin(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{
+  try{await api('/login',{method:'POST',body:{id:f.id.value,password:f.pw.value}})}catch(x){$('err').textContent=x.message;return}
+  await boot();startPoll()})}
+function doSignup(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{
+  try{await api('/signup',{method:'POST',body:{name:f.name.value,username:f.username.value,email:f.email.value,password:f.pw.value}})}catch(x){$('err').textContent=x.message;return}
+  S.view='kyc';await boot();startPoll()})}
+async function logout(){await api('/logout',{method:'POST'}).catch(()=>{});clearInterval(S.poll);S.me=null;render()}
+
+/* ===== Shell ===== */
+function shell(){
+  const u=S.me,adm=u.role==='admin';
+  const items=[['home','Início'],['receive','Receber'],['send','Enviar'],['history','Extrato'],['kyc','Verificação']];
+  if(adm)items.push(['a-over','Admin'],['a-users','Usuários'],['a-fees','Taxas']);
+  const V={home:homeV,receive:receiveV,send:sendV,history:historyV,kyc:kycV,'a-over':aOverV,'a-users':aUsersV,'a-fees':aFeesV,pw:pwV};
+  return `<div class="top"><div class="brand">Pix<b>Gate</b></div><div class="who">${esc(u.name)}${adm?' · <b>admin</b>':''}<br><a href="#" onclick="S.view='pw';render();return false">Senha</a> · <a href="#" onclick="logout();return false">Sair</a></div></div>
+  ${S.sandbox?'<div class="banner">Ambiente de testes (sandbox): nenhum dinheiro real se move.</div>':''}
+  <div class="nav">${items.map(([k,l])=>`<button class="${S.view===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}</div>
+  ${(V[S.view]||homeV)()}${S.edit?editModal():''}`;
+}
+async function go(v){S.view=v;render();
+  if(v==='a-over')await act(null,async()=>{S.admin=await api('/admin/overview');render()});
+  if(v==='a-users'||v==='a-fees')await act(null,async()=>{const j=await api('/admin/users');S.users=j.users;S.settings=j.fees;render()});
+}
+
+const kycTag=s=>({approved:['Verificado','ok'],pending:['Em análise','warn'],rejected:['Recusado','bad'],none:['Não enviado','']}[s]||[s,'']);
+function needKyc(){
+  const u=S.me;if(u.kyc_status==='approved')return '';
+  const [l]=kycTag(u.kyc_status);
+  return `<div class="card"><h2>Verificação necessária</h2><p class="muted" style="margin-top:0">Para receber e enviar PIX é preciso verificar sua identidade. Status: <b>${l}</b>${u.kyc_note?` — ${esc(u.kyc_note)}`:''}.</p><button class="btn" style="margin-top:0" onclick="go('kyc')">${u.kyc_status==='pending'?'Ver status':'Verificar agora'}</button></div>`;
+}
+
+/* ===== Usuário ===== */
+function statusTag(t){const m={pending:['Aguardando','warn'],paid:['Pago','ok'],done:['Concluído','ok'],processing:['Processando','warn'],failed:['Falhou','bad']}[t.status]||[t.status,''];return `<span class="tag ${m[1]}">${m[0]}</span>`}
+function txRow(t){
+  let title,cls,val;
+  if(t.type==='receive'){title='Cobrança PIX';cls=t.status==='paid'?'pos':'muted';val=(t.status==='paid'?'+'+brl(t.net):brl(t.amount))}
+  else if(t.type==='transfer'){title='PIX para '+esc(t.key);cls=t.status==='failed'?'muted':'neg';val=(t.status==='failed'?'':'−')+brl(t.net)}
+  else{title=esc(t.note||'Ajuste');cls=t.net>=0?'pos':'neg';val=(t.net>=0?'+':'−')+brl(Math.abs(t.net))}
+  return `<div class="item"><div class="l"><b>${title}</b><span class="muted">${fmtDate(t.created_at)}${t.fee?' · taxa '+brl(t.fee):''}</span></div><div style="text-align:right"><div class="${cls}">${val}</div>${t.type==='adjust'?'':statusTag(t)}</div></div>`;
+}
+function homeV(){
+  const u=S.me;
+  return `<div class="card"><div class="muted">Saldo disponível</div><div class="bal">${brl(u.balance)}</div>
+  <div class="row" style="margin-top:12px"><button class="btn sec" style="margin:0" onclick="go('receive')">Receber PIX</button><button class="btn" style="margin:0" onclick="go('send')">Enviar PIX</button></div></div>
+  ${needKyc()}
+  <div class="card"><h3>Suas taxas</h3><div class="item"><span>Receber</span><b>${fmtFee(S.fees.receive)}</b></div><div class="item"><span>Transferir</span><b>${fmtFee(S.fees.transfer)}</b></div></div>
+  <div class="card"><h3>Últimas movimentações</h3>${S.tx.slice(0,5).map(txRow).join('')||'<p class="muted">Nada por aqui ainda.</p>'}</div>`;
+}
+function previewRecv(){const el=$('rp');if(!el)return;const a=parseMoney($('ramt').value),r=S.fees.receive,f=a?Math.round(a*r.pct/100)+r.fixed:0;
+  el.innerHTML=`<div><span>Cobrança</span><b>${brl(a)}</b></div><div><span>Taxa</span><b>${brl(f)}</b></div><div><span>Cai no saldo</span><b>${brl(Math.max(0,a-f))}</b></div>`}
+function previewSend(){const el=$('sp');if(!el)return;const a=parseMoney($('samt').value),r=S.fees.transfer,f=a?Math.round(a*r.pct/100)+r.fixed:0;
+  el.innerHTML=`<div><span>Valor</span><b>${brl(a)}</b></div><div><span>Taxa</span><b>${brl(f)}</b></div><div><span>Total debitado</span><b>${brl(a?a+f:0)}</b></div>`}
+function receiveV(){
+  const pend=S.tx.filter(t=>t.type==='receive'&&t.status==='pending');
+  setTimeout(previewRecv,0);
+  if(S.me.kyc_status!=='approved')return needKyc();
+  return `<div class="card"><h2>Gerar PIX para receber</h2><p class="muted" style="margin-top:0">Quando o pagamento for confirmado, o valor cai no seu saldo já descontada a taxa. Mínimo ${brl(S.min)}.</p>
+  <form onsubmit="mkCharge(event)"><label>Valor (R$)</label><input id="ramt" name="amount" inputmode="decimal" placeholder="0,00" oninput="previewRecv()" required><div class="preview" id="rp"></div><button class="btn">Gerar cobrança</button></form></div>
+  ${pend.map(t=>`<div class="card"><div style="display:flex;justify-content:space-between"><h3>Cobrança de ${brl(t.amount)}</h3>${statusTag(t)}</div>
+  <div class="muted">Taxa ${brl(t.fee)} · você recebe ${brl(t.net)}</div>
+  <div class="qr"><img alt="QR Code PIX" src="data:image/png;base64,${esc(t.pix_image)}"></div>
+  <div class="code">${esc(t.pix_payload)}</div>
+  <button class="btn sec sm" onclick="copyPix('${t.id}')">Copiar código PIX</button>
+  <p class="muted" style="margin-bottom:0">Aguardando pagamento… a tela atualiza sozinha.</p></div>`).join('')}`;
+}
+function mkCharge(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{
+  await api('/charges',{method:'POST',body:{amount:parseMoney(f.amount.value)}});await loadTx();f.reset();render();toast('Cobrança gerada')})}
+function copyPix(id){const t=S.tx.find(x=>x.id===id);navigator.clipboard.writeText(t.pix_payload).then(()=>toast('Código copiado'),()=>toast('Copie manualmente'))}
+function sendV(){
+  setTimeout(previewSend,0);
+  if(S.me.kyc_status!=='approved')return needKyc();
+  return `<div class="card"><div class="muted">Saldo disponível</div><div class="bal" style="font-size:26px">${brl(S.me.balance)}</div></div>
+  <div class="card"><h2>Enviar / sacar PIX</h2><form onsubmit="mkSend(event)">
+  <label>Tipo da chave</label><select name="keyType"><option value="cpf">CPF/CNPJ</option><option value="phone">Telefone</option><option value="email">E-mail</option><option value="random">Chave aleatória</option></select>
+  <label>Chave PIX</label><input name="key" autocapitalize="none" required>
+  <label>Valor (R$)</label><input id="samt" name="amount" inputmode="decimal" placeholder="0,00" oninput="previewSend()" required>
+  <div class="preview" id="sp"></div><button class="btn">Enviar PIX</button></form></div>`;
+}
+function mkSend(e){e.preventDefault();const f=e.target;
+  const a=parseMoney(f.amount.value);if(!confirm(`Enviar ${brl(a)} para ${f.key.value}?`))return;
+  act(f.querySelector('button'),async()=>{await api('/transfers',{method:'POST',body:{keyType:f.keyType.value,key:f.key.value,amount:a}});await loadTx();S.view='history';render();toast('Saque solicitado')})}
+function historyV(){return `<div class="card"><h2>Extrato</h2>${S.tx.map(txRow).join('')||'<p class="muted">Sem movimentações.</p>'}</div>`}
+
+/* ===== KYC ===== */
+function kycV(){
+  const u=S.me,[l,c]=kycTag(u.kyc_status);
+  const head=`<div class="card"><h2>Verificação de identidade (KYC)</h2><p style="margin:0">Status: <span class="tag ${c}">${l}</span></p>${u.kyc_note?`<p class="muted">${esc(u.kyc_note)}</p>`:''}</div>`;
+  if(u.kyc_status==='approved')return head;
+  if(u.kyc_status==='pending')return head+`<div class="card"><p class="muted" style="margin:0">Recebemos seus dados e estamos analisando. Você será liberado assim que for aprovado.</p></div>`;
+  return head+`<div class="card"><form onsubmit="sendKyc(event)">
+  <label>Nome completo</label><input name="fullName" required><label>CPF</label><input name="cpf" inputmode="numeric" required>
+  <label>Data de nascimento</label><input name="birth" type="date" required>
+  <label>Foto do documento (RG ou CNH)</label><input name="doc" type="file" accept="image/*" required>
+  <p class="muted">Usamos esses dados apenas para verificação e para emitir suas cobranças PIX.</p><button class="btn">Enviar para análise</button></form></div>`;
+}
+function fileToJpeg(file){return new Promise((ok,no)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.85))};
+  img.onerror=()=>no(new Error('Imagem inválida'));img.src=u})}
+function sendKyc(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{
+  const doc=await fileToJpeg(f.doc.files[0]);
+  await api('/kyc',{method:'POST',body:{fullName:f.fullName.value,cpf:f.cpf.value,birth:f.birth.value,doc}});
+  await loadTx();render();toast('Enviado para análise')})}
+function pwV(){return `<div class="card"><h2>Alterar senha</h2><form onsubmit="chPw(event)"><label>Senha atual</label><input name="old" type="password" required><label>Nova senha (mín. 8)</label><input name="next" type="password" required><button class="btn">Salvar</button></form></div>`}
+function chPw(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{await api('/password',{method:'POST',body:{old:f.old.value,next:f.next.value}});f.reset();toast('Senha alterada')})}
+
+/* ===== Admin ===== */
+function aOverV(){
+  const a=S.admin;if(!a)return '<div class="card muted">Carregando…</div>';const s=a.stats;
+  const diff=s.asaas_balance==null?null:s.asaas_balance-s.held;
+  return `<div class="card"><h2>Resumo</h2><div class="grid">
+  <div class="stat"><div class="muted">Usuários</div><div class="v">${s.users}</div></div>
+  <div class="stat"><div class="muted">KYC pendentes</div><div class="v">${s.kyc_pending}</div></div>
+  <div class="stat"><div class="muted">Devido aos usuários</div><div class="v">${brl(s.held)}</div></div>
+  <div class="stat"><div class="muted">Saldo no Asaas</div><div class="v">${s.asaas_balance==null?'—':brl(s.asaas_balance)}</div></div>
+  <div class="stat"><div class="muted">Recebido (volume)</div><div class="v">${brl(s.vol_recv)}</div></div>
+  <div class="stat"><div class="muted">Enviado (volume)</div><div class="v">${brl(s.vol_send)}</div></div>
+  <div class="stat" style="grid-column:1/-1"><div class="muted">Receita com taxas</div><div class="v" style="color:var(--ok)">${brl(s.revenue)}</div></div></div>
+  ${s.asaas_error?`<p class="muted">Saldo Asaas indisponível: ${esc(s.asaas_error)}</p>`:''}
+  ${diff!=null&&diff<0?`<p class="neg">Atenção: o saldo no Asaas é menor que o devido aos usuários (${brl(diff)}).</p>`:''}
+  ${s.stuck?`<p class="muted">${s.stuck} saque(s) em processamento. Se algum ficar parado, confira no painel Asaas.</p>`:''}</div>
+  <div class="card"><h3>Transações recentes</h3>${a.recent.map(t=>`<div class="item"><div class="l"><b>@${esc(t.username)} · ${t.type==='receive'?'Recebimento':t.type==='transfer'?'Envio':'Ajuste'}</b><span class="muted">${fmtDate(t.created_at)} · ${t.status}</span></div><div style="text-align:right"><b>${brl(t.amount)}</b><div class="muted">taxa ${brl(t.fee)}</div></div></div>`).join('')||'<p class="muted">Sem transações.</p>'}</div>`;
+}
+function aUsersV(){
+  return `<div class="card"><h2>Usuários</h2>${S.users.map(u=>{const [l,c]=kycTag(u.kyc_status),o=u.own_fees,ov=Object.values(o).some(v=>v!==null);
+  return `<div class="item"><div class="l"><b>${esc(u.name)} <span class="muted">@${esc(u.username)}</span></b><span class="muted">${brl(u.balance)} · KYC: ${l}${ov?' · taxa própria':''}${u.blocked?' · bloqueado':''}</span></div><button class="btn sec sm" onclick="S.edit=${u.id};render()">Editar</button></div>`}).join('')}</div>`;
+}
+function aFeesV(){
+  const g=S.settings;if(!g)return '<div class="card muted">Carregando…</div>';
+  return `<div class="card"><h2>Taxa padrão (todos os usuários)</h2><p class="muted" style="margin-top:0">Porcentagem + valor fixo. Ajuste para cobrir o que o Asaas cobra de você e deixar sua margem.</p>
+  <form onsubmit="saveFees(event)"><h3 style="margin-top:12px">Receber PIX</h3><div class="row"><div><label>Porcentagem (%)</label><input name="rp" value="${fmtPct(g.recv_pct)}" inputmode="decimal"></div><div><label>Fixa (R$)</label><input name="rf" value="${centsToStr(g.recv_fixed)}" inputmode="decimal"></div></div>
+  <h3 style="margin-top:12px">Transferir / sacar PIX</h3><div class="row"><div><label>Porcentagem (%)</label><input name="tp" value="${fmtPct(g.tr_pct)}" inputmode="decimal"></div><div><label>Fixa (R$)</label><input name="tf" value="${centsToStr(g.tr_fixed)}" inputmode="decimal"></div></div>
+  <button class="btn">Salvar taxa padrão</button></form></div>
+  <div class="card"><h3>Taxas individuais</h3><p class="muted" style="margin-top:0">Para um usuário só, vá em Usuários → Editar.</p><button class="btn sec sm" onclick="clearOv()">Remover taxas individuais de todos</button></div>`;
+}
+function saveFees(e){e.preventDefault();const f=e.target;act(f.querySelector('button'),async()=>{
+  const rp=parsePct(f.rp.value),tp=parsePct(f.tp.value);if(rp==null||tp==null||isNaN(rp)||isNaN(tp))throw new Error('Preencha as porcentagens (ex: 1,5)');
+  await api('/admin/settings',{method:'PUT',body:{recv_pct:rp,recv_fixed:parseMoney(f.rf.value),tr_pct:tp,tr_fixed:parseMoney(f.tf.value)}});
+  await go('a-fees');toast('Taxas salvas')})}
+function clearOv(){if(!confirm('Remover as taxas individuais de TODOS os usuários?'))return;act(null,async()=>{await api('/admin/clear-overrides',{method:'POST'});toast('Feito')})}
+function editModal(){
+  const u=S.users.find(x=>x.id===S.edit);if(!u)return '';const o=u.own_fees,g=S.settings||{},[l]=kycTag(u.kyc_status);
+  return `<div class="modal" onclick="if(event.target===this){S.edit=null;render()}"><div class="box">
+  <h2 style="margin:0">@${esc(u.username)}</h2><div class="muted">Saldo ${brl(u.balance)} · CPF ${esc(u.cpf||'—')} · ${esc(u.full_name||'')}</div>
+  <h3 style="margin-top:14px">Verificação: ${l}</h3>
+  ${u.kyc_status!=='none'?`<p style="margin:4px 0"><a href="/api/admin/kyc-doc/${u.id}" target="_blank">Ver documento enviado</a></p>`:''}
+  <div class="row" style="margin-top:8px"><button class="btn sm" onclick="setKyc(${u.id},'approved')">Aprovar</button><button class="btn sec sm" onclick="setKyc(${u.id},'rejected')">Recusar</button></div>
+  <form onsubmit="saveUser(event,${u.id})">
+  <h3 style="margin-top:16px">Taxa de receber <span class="muted">(padrão ${fmtPct(g.recv_pct??'')}% + ${brl(g.recv_fixed||0)})</span></h3>
+  <div class="row"><div><label>%</label><input name="rp" value="${o.recv_pct==null?'':fmtPct(o.recv_pct)}" inputmode="decimal" placeholder="padrão"></div><div><label>Fixa R$</label><input name="rf" value="${centsToStr(o.recv_fixed)}" inputmode="decimal" placeholder="padrão"></div></div>
+  <h3 style="margin-top:14px">Taxa de transferir <span class="muted">(padrão ${fmtPct(g.tr_pct??'')}% + ${brl(g.tr_fixed||0)})</span></h3>
+  <div class="row"><div><label>%</label><input name="tp" value="${o.tr_pct==null?'':fmtPct(o.tr_pct)}" inputmode="decimal" placeholder="padrão"></div><div><label>Fixa R$</label><input name="tf" value="${centsToStr(o.tr_fixed)}" inputmode="decimal" placeholder="padrão"></div></div>
+  <label>Ajustar saldo (R$, use − para tirar)</label><input name="adj" inputmode="decimal" placeholder="ex: 100,00">
+  ${u.role!=='admin'?`<label class="chk"><input type="checkbox" name="blocked" ${u.blocked?'checked':''}> Bloquear conta</label>`:''}
+  <button class="btn">Salvar</button><button type="button" class="btn sec" onclick="S.edit=null;render()">Fechar</button></form></div></div>`;
+}
+function setKyc(id,st){let note=null;if(st==='rejected'){note=prompt('Motivo da recusa (o usuário verá):');if(note===null)return}
+  act(null,async()=>{await api('/admin/users/'+id,{method:'PATCH',body:{kyc_status:st,kyc_note:note}});await go('a-users');toast('Atualizado')})}
+function saveUser(e,id){e.preventDefault();const f=e.target;act(f.querySelector('button.btn'),async()=>{
+  const rp=parsePct(f.rp.value),tp=parsePct(f.tp.value);if(Number.isNaN(rp)||Number.isNaN(tp))throw new Error('Porcentagem inválida');
+  const body={fees:{recv_pct:rp,recv_fixed:parseFixed(f.rf.value),tr_pct:tp,tr_fixed:parseFixed(f.tf.value)}};
+  if(f.blocked)body.blocked=f.blocked.checked;
+  await api('/admin/users/'+id,{method:'PATCH',body});
+  const adj=parseMoney(f.adj.value);if(f.adj.value.trim()&&adj){if(!confirm('Ajustar saldo em '+brl(adj)+'?'))return;await api(`/admin/users/${id}/adjust`,{method:'POST',body:{amount:adj,note:'Ajuste do admin'}})}
+  S.edit=null;await go('a-users');toast('Usuário atualizado')})}
+
+function render(){$('app').innerHTML=S.me?shell():authView()}
+boot().then(()=>{if(S.me)startPoll()});
+</script>
+</body>
+</html>
